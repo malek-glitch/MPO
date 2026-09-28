@@ -1,0 +1,1116 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Back office — Meilleurs Prix Ordinateur</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  :root {
+    --bo-accent: #0d9488;
+    --bo-accent-dark: #0f766e;
+    --bo-accent-soft: #ccfbf1;
+  }
+  html, body { height: 100%; }
+  body { background: var(--bg); }
+
+  /* ---------- Login screen ---------- */
+  .login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .login-shell { width: 100%; max-width: 420px; }
+  .login-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+  .login-brand .bo-badge {
+    width: 44px; height: 44px; border-radius: 12px; background: var(--bo-accent); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; flex-shrink: 0; overflow: hidden;
+  }
+  .login-brand .bo-badge img { width: 100%; height: 100%; object-fit: cover; }
+  .login-brand h1 { margin: 0; font-size: 18px; font-weight: 700; }
+  .login-brand p { margin: 0; font-size: 13px; color: var(--muted); }
+  .login-card { background: var(--panel); border: 1px solid var(--border-soft); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); }
+  .login-card h2 { margin: 0 0 6px; font-size: 22px; font-weight: 700; }
+  .login-card > p { margin: 0 0 24px; color: var(--muted); font-size: 14px; }
+  .field { margin-bottom: 18px; }
+  .field label { display: block; font-size: 13.5px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+  .link-teal { font-size: 13px; color: var(--bo-accent); font-weight: 600; background: none; border: none; cursor: pointer; padding: 0; }
+  .link-teal:hover { color: var(--bo-accent-dark); text-decoration: underline; }
+  .input-wrap { position: relative; }
+  .input-wrap input {
+    width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14.5px;
+  }
+  .input-wrap input:focus { outline: none; border-color: var(--bo-accent); box-shadow: 0 0 0 3px var(--bo-accent-soft); }
+  .input-wrap .toggle-pw {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none;
+    font-size: 12.5px; font-weight: 600; color: var(--muted); cursor: pointer;
+  }
+  .btn-teal {
+    width: 100%; background: var(--bo-accent); color: #fff; border: none; border-radius: 8px; padding: 13px;
+    font-weight: 700; font-size: 15px; cursor: pointer; transition: background .15s;
+  }
+  .btn-teal:hover { background: var(--bo-accent-dark); }
+  .login-error { color: #dc2626; font-size: 13.5px; margin-top: 12px; display: none; }
+  .login-note { font-size: 12.5px; color: var(--muted); text-align: center; margin-top: 16px; }
+
+  /* ---------- Back office shell ---------- */
+  .bo-shell { display: none; min-height: 100vh; }
+  .bo-sidebar {
+    width: 240px; flex-shrink: 0; background: var(--panel); border-right: 1px solid var(--border-soft);
+    display: flex; flex-direction: column; padding: 20px 14px; position: sticky; top: 0; height: 100vh;
+  }
+  .bo-sidebar .brand-row { display: flex; align-items: center; gap: 10px; padding: 6px 8px 20px; }
+  .bo-sidebar .brand-row .bo-badge { width: 36px; height: 36px; border-radius: 10px; background: var(--bo-accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; overflow: hidden; flex-shrink: 0; }
+  .bo-sidebar .brand-row .bo-badge img { width: 100%; height: 100%; object-fit: cover; }
+  .bo-sidebar .brand-row .t { font-size: 14px; font-weight: 700; line-height: 1.25; }
+  .bo-sidebar .brand-row .s { font-size: 11.5px; color: var(--muted); }
+  .bo-nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  .bo-nav button {
+    display: flex; align-items: center; gap: 10px; text-align: left; background: none; border: none; cursor: pointer;
+    padding: 10px 12px; border-radius: 8px; font-size: 14px; font-weight: 600; color: var(--muted);
+  }
+  .bo-nav button .ic { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+  .bo-nav button:hover { background: var(--bg); color: var(--ink); }
+  .bo-nav button.active { background: var(--bo-accent-soft); color: var(--bo-accent-dark); }
+  .bo-nav button.active .ic { background: var(--bo-accent); }
+  .bo-logout {
+    display: flex; align-items: center; gap: 10px; background: none; border: 1px solid var(--border); cursor: pointer;
+    padding: 10px 12px; border-radius: 8px; font-size: 14px; font-weight: 600; color: var(--muted); margin-top: 10px;
+  }
+  .bo-logout:hover { border-color: #dc2626; color: #dc2626; }
+
+  .bo-main { flex: 1; padding: 32px 36px; max-width: 1040px; }
+  .bo-view { display: none; }
+  .bo-view.active { display: block; }
+  .bo-head { margin-bottom: 24px; }
+  .bo-head h1 { margin: 0 0 4px; font-size: 24px; font-weight: 800; }
+  .bo-head p { margin: 0; color: var(--muted); font-size: 14px; }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 14px; margin-bottom: 24px; }
+  .stat { background: var(--panel); border: 1px solid var(--border-soft); border-radius: var(--radius); padding: 18px; }
+  .stat .n { font-size: 26px; font-weight: 800; color: var(--ink); }
+  .stat .l { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+  .panel { background: var(--panel); border: 1px solid var(--border-soft); border-radius: var(--radius); padding: 24px; }
+  .panel + .panel { margin-top: 20px; }
+  .panel h2 { margin: 0 0 18px; font-size: 16px; font-weight: 700; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid2 label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; font-weight: 600; color: #374151; }
+  .grid2 input, .grid2 select, .grid2 textarea {
+    font: inherit; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: #fff;
+  }
+  .grid2 input:focus, .grid2 select:focus, .grid2 textarea:focus { outline: none; border-color: var(--bo-accent); box-shadow: 0 0 0 3px var(--bo-accent-soft); }
+  .grid2 .span2 { grid-column: 1 / -1; }
+  .panel p.hint { margin: -10px 0 16px; font-size: 12.5px; color: var(--muted); }
+  .grid2 textarea { width: 100%; resize: vertical; }
+  .field-block { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .field-block .lbl, span.lbl { font-size: 13px; font-weight: 600; color: #374151; }
+  .grid2 .field-block label.lbl { display: block; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--border); background: #fff; color: #374151;
+  }
+  .chip:hover { border-color: var(--bo-accent); color: var(--bo-accent-dark); }
+  .chip.active { background: var(--bo-accent); border-color: var(--bo-accent); color: #fff; }
+  .prefill-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 16px 24px; background: var(--bo-accent-soft); border-color: #99f6e4; }
+  .prefill-bar label { font-size: 13.5px; font-weight: 700; color: var(--bo-accent-dark); }
+  .prefill-bar select { font: inherit; padding: 8px 12px; border: 1px solid #99f6e4; border-radius: 8px; background: #fff; min-width: 260px; }
+  .hint-inline { font-size: 12.5px; color: var(--bo-accent-dark); opacity: .8; }
+  .dropzone {
+    display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; cursor: pointer;
+    border: 2px dashed var(--border); border-radius: 12px; padding: 26px; color: var(--muted); font-size: 14px;
+  }
+  .dropzone strong { color: var(--ink); }
+  .dropzone span { font-size: 12.5px; }
+  .dropzone input { display: none; }
+  .dropzone:hover, .dropzone.drag { border-color: var(--bo-accent); background: var(--bo-accent-soft); color: var(--bo-accent-dark); }
+  .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 14px; }
+  .preview-grid:empty { display: none; }
+  .preview { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; border: 2px solid transparent; background: #f1f5f9; cursor: pointer; }
+  .preview.main { border-color: var(--bo-accent); }
+  .preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .preview .tag { position: absolute; left: 6px; bottom: 6px; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: rgba(15,23,42,.7); color: #fff; }
+  .preview.main .tag { background: var(--bo-accent); }
+  .preview .rm { position: absolute; top: 5px; right: 5px; width: 22px; height: 22px; border-radius: 50%; border: none; background: rgba(15,23,42,.7); color: #fff; cursor: pointer; font-size: 13px; line-height: 1; }
+  .preview .rm:hover { background: #dc2626; }
+  .desc-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .form-actions {
+    position: sticky; bottom: 0; z-index: 5; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    margin-top: 20px; padding: 14px 0; background: linear-gradient(to top, var(--bg) 70%, transparent);
+  }
+  .form-actions .btn-teal { width: auto; padding: 12px 26px; }
+  .btn-teal-outline {
+    font: inherit; font-weight: 700; font-size: 15px; padding: 11px 22px; border-radius: 8px; cursor: pointer;
+    background: #fff; color: var(--bo-accent-dark); border: 1px solid var(--bo-accent);
+  }
+  .btn-teal-outline:hover { background: var(--bo-accent-soft); }
+  .btn-teal-outline.btn-sm { font-size: 13.5px; padding: 8px 16px; }
+  .btn-teal-outline:disabled { opacity: .5; cursor: not-allowed; background: #fff; }
+  #productForm :is(input, select, textarea) { scroll-margin-top: 24px; scroll-margin-bottom: 110px; }
+  .form-actions button:disabled { opacity: .6; cursor: wait; }
+  .kbd-hint { font-size: 12px; color: var(--muted); }
+  #productFormError { color: #dc2626; font-size: 13px; }
+  .seg-radio { display: flex; gap: 10px; flex-wrap: wrap; }
+  .seg-radio label { flex-direction: row !important; align-items: center; gap: 6px !important; font-weight: 500 !important; border: 1px solid var(--border); border-radius: 8px; padding: 9px 14px; cursor: pointer; }
+  .seg-radio input { width: auto; accent-color: var(--bo-accent); }
+  .seg-radio label:has(input:checked) { border-color: var(--bo-accent); background: var(--bo-accent-soft); color: var(--bo-accent-dark); }
+
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--border-soft); font-size: 14px; }
+  th { color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; font-weight: 700; }
+  tr:last-child td { border-bottom: none; }
+  td.actions { display: flex; gap: 8px; }
+  .status-pill { display: inline-flex; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .status-pill.available { background: #dcfce7; color: #15803d; }
+  .status-pill.sold { background: #fee2e2; color: #b91c1c; }
+  .status-pill.hidden { background: #f1f5f9; color: #64748b; }
+
+  button.link-btn { background: none; border: none; color: var(--bo-accent-dark); font-weight: 600; font-size: 13px; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+  button.link-btn:hover { background: var(--bo-accent-soft); }
+  button.link-btn.danger { color: #dc2626; }
+  button.link-btn.danger:hover { background: #fee2e2; }
+  .thumb-col { display: flex; align-items: center; gap: 10px; }
+  .thumb-col .ph {
+    width: 44px; height: 44px; border-radius: 8px; background: #f1f5f9; overflow: hidden; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; color: var(--muted-2); font-size: 10px;
+  }
+  .thumb-col .ph img { width: 100%; height: 100%; object-fit: cover; }
+  .thumb-col .no-photo-flag { font-size: 11px; color: #b45309; background: #fef3c7; padding: 2px 8px; border-radius: 999px; font-weight: 700; }
+
+  /* ---------- Photo modal ---------- */
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,.5); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 200; }
+  .photo-modal { background: #fff; border-radius: var(--radius); width: 100%; max-width: 560px; max-height: 86vh; overflow: auto; padding: 24px; }
+  .photo-modal-head { display: flex; align-items: start; justify-content: space-between; margin-bottom: 4px; }
+  .photo-modal-head h2 { margin: 0; font-size: 17px; }
+  .photo-modal-head button { background: none; border: none; font-size: 20px; color: var(--muted); cursor: pointer; line-height: 1; padding: 2px 6px; }
+  .photo-modal p.sub { margin: 0 0 18px; color: var(--muted); font-size: 13.5px; }
+  .photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
+  .photo-tile { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: #f1f5f9; border: 2px solid transparent; }
+  .photo-tile.main { border-color: var(--bo-accent); }
+  .photo-tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo-tile .main-tag { position: absolute; bottom: 4px; left: 4px; background: var(--bo-accent); color: #fff; font-size: 9.5px; font-weight: 700; padding: 1px 6px; border-radius: 999px; }
+  .photo-tile .del { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; background: rgba(15,23,42,.7); color: #fff; border: none; font-size: 12px; cursor: pointer; line-height: 1; display: flex; align-items: center; justify-content: center; }
+  .photo-tile .del:hover { background: #dc2626; }
+  .photo-drop {
+    border: 2px dashed var(--border); border-radius: 10px; padding: 22px; text-align: center; cursor: pointer;
+    color: var(--muted); font-size: 13.5px;
+  }
+  .photo-drop:hover { border-color: var(--bo-accent); color: var(--bo-accent-dark); background: var(--bo-accent-soft); }
+  .photo-drop input { display: none; }
+  .photo-modal-empty { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+
+  @media (max-width: 860px) {
+    .bo-shell { flex-direction: column; }
+    .bo-sidebar { width: 100%; height: auto; position: static; flex-direction: row; align-items: center; padding: 12px 16px; overflow-x: auto; }
+    .bo-sidebar .brand-row { padding: 0 12px 0 0; }
+    .bo-nav { flex-direction: row; }
+    .bo-logout { margin: 0 0 0 auto; }
+    .bo-main { padding: 20px; }
+    form.grid2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-shell">
+    <div class="login-brand">
+      <div class="bo-badge"><img data-store="logo" src="assets/mpo-logo.png" alt=""></div>
+      <div>
+        <h1 data-store="name">Meilleurs Prix Ordinateur</h1>
+        <p>Administration</p>
+      </div>
+    </div>
+    <div class="login-card">
+      <h2>Connexion</h2>
+      <p>Accès réservé à l'équipe de la boutique.</p>
+      <form id="loginForm">
+        <div class="field">
+          <label for="loginEmail">Adresse e-mail</label>
+          <div class="input-wrap">
+            <input type="email" id="loginEmail" required placeholder="vous@boutique.tn" autocomplete="username">
+          </div>
+        </div>
+        <div class="field">
+          <label for="loginPassword">Mot de passe</label>
+          <div class="input-wrap">
+            <input type="password" id="loginPassword" required autocomplete="current-password">
+            <button type="button" class="toggle-pw" id="togglePw">Afficher</button>
+          </div>
+        </div>
+        <button class="btn-teal" type="submit">Se connecter</button>
+        <p class="login-error" id="loginError"></p>
+        <p class="login-note" id="forgotNote">Mot de passe oublié ? Demandez à un administrateur de le réinitialiser depuis le tableau de bord.</p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="bo-shell" id="boShell">
+  <aside class="bo-sidebar">
+    <div class="brand-row">
+      <div class="bo-badge"><img data-store="logo" src="assets/mpo-logo.png" alt=""></div>
+      <div>
+        <div class="t" data-store="name">Meilleurs Prix Ordinateur</div>
+        <div class="s">Back office</div>
+      </div>
+    </div>
+    <nav class="bo-nav">
+      <button data-view="dashboard" class="active"><span class="ic"></span>Tableau de bord</button>
+      <button data-view="add"><span class="ic"></span>Ajouter un produit</button>
+      <a href="index.html" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:14px;font-weight:600;color:var(--muted);text-decoration:none"><span class="ic" style="width:8px;height:8px;border-radius:50%;background:var(--border)"></span>Voir la boutique</a>
+    </nav>
+    <button class="link-teal" id="changePwBtn" style="text-align:left;padding:8px 12px">Changer le mot de passe</button>
+    <button class="bo-logout" id="logoutBtn">Déconnexion</button>
+  </aside>
+
+  <main class="bo-main">
+    <div class="bo-view active" id="viewDashboard">
+      <div class="bo-head">
+        <h1>Tableau de bord</h1>
+        <p>Vue d'ensemble de votre boutique.</p>
+      </div>
+      <div class="stats" id="statsRow"></div>
+      <div class="panel">
+        <h2>Produits</h2>
+        <table>
+          <thead><tr><th></th><th>Marque / Modèle</th><th>Prix</th><th>Qté</th><th>Statut</th><th></th></tr></thead>
+          <tbody id="adminProductRows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="bo-view" id="viewAdd">
+      <div class="bo-head">
+        <h1>Ajouter un produit</h1>
+        <p>Renseignez les informations du nouvel article.</p>
+      </div>
+
+      <form id="productForm" autocomplete="off">
+        <div class="panel prefill-bar">
+          <label for="pPrefill">Partir d'un produit existant</label>
+          <select id="pPrefill"><option value="">— Choisir un produit —</option></select>
+          <button type="button" class="btn-teal-outline btn-sm" id="pPrefillBtn" disabled>Copier</button>
+          <span class="hint-inline">Copie toutes les caractéristiques ; il ne reste que le prix et les photos.</span>
+        </div>
+
+        <div class="panel">
+          <h2>1. L'appareil</h2>
+          <div class="grid2">
+            <div class="field-block span2">
+              <span class="lbl">État</span>
+              <div class="seg-radio">
+                <label><input type="radio" name="pCondType" id="pCondNew" value="new" checked>Neuf</label>
+                <label><input type="radio" name="pCondType" id="pCondUsed" value="used">Occasion</label>
+              </div>
+            </div>
+            <div class="field-block span2">
+              <label for="pBrand" class="lbl">Marque</label>
+              <div class="chips" id="brandChips"></div>
+              <input id="pBrand" list="brandList" required placeholder="Ou tapez une autre marque…">
+              <datalist id="brandList"></datalist>
+            </div>
+            <label>Modèle<input id="pModel" list="modelList" required placeholder="Latitude 7420"><datalist id="modelList"></datalist></label>
+            <label>Catégorie<select id="pCategory" required></select></label>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>2. Caractéristiques</h2>
+          <p class="hint">Cliquez une valeur courante ou saisissez-la. Les listes s'adaptent à la marque choisie.</p>
+          <div class="grid2">
+            <label class="span2">Processeur<input id="pProcessor" list="cpuList" placeholder="Intel Core i5-1145G7"><datalist id="cpuList"></datalist></label>
+
+            <div class="field-block">
+              <label for="pRam" class="lbl">Mémoire RAM (Go)</label>
+              <div class="chips" data-target="pRam" id="ramChips"></div>
+              <input id="pRam" type="number" min="0" step="1" placeholder="Autre valeur">
+            </div>
+            <div class="field-block">
+              <label for="pStorage" class="lbl">Stockage</label>
+              <div class="chips" data-target="pStorage" id="storageChips"></div>
+              <input id="pStorage" type="number" min="0" step="1" placeholder="Autre valeur (Go)">
+            </div>
+
+            <label>Type de stockage
+              <select id="pStorageType">
+                <option>SSD NVMe</option><option>SSD</option><option>HDD</option><option>SSD + HDD</option><option>eMMC</option>
+              </select>
+            </label>
+            <label>Carte graphique<input id="pGpu" list="gpuList" placeholder="Intégrée, RTX 4060 8 Go…"><datalist id="gpuList"></datalist></label>
+
+            <div class="field-block">
+              <label for="pScreen" class="lbl">Écran (pouces)</label>
+              <div class="chips" data-target="pScreen" id="screenChips"></div>
+              <input id="pScreen" type="number" min="0" step="0.1" placeholder="Autre valeur">
+            </div>
+            <div class="field-block">
+              <label for="pOsSelect" class="lbl">Système d'exploitation</label>
+              <select id="pOsSelect"></select>
+              <input id="pOsOther" placeholder="Précisez le système" style="display:none;margin-top:8px">
+            </div>
+
+            <label>Clavier
+              <select id="pKeyboard">
+                <option>AZERTY (FR)</option><option>QWERTY (US)</option><option>QWERTY (UK)</option><option>AZERTY (BE)</option><option>QWERTZ</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="panel" id="usedPanel" style="display:none">
+          <h2>3. État de l'occasion</h2>
+          <div class="grid2">
+            <div class="field-block span2">
+              <span class="lbl">Condition</span>
+              <div class="seg-radio" id="conditionRadios">
+                <label><input type="radio" name="pCondition" value="like_new" checked>Comme neuf</label>
+                <label><input type="radio" name="pCondition" value="very_good">Très bon</label>
+                <label><input type="radio" name="pCondition" value="good">Bon</label>
+                <label><input type="radio" name="pCondition" value="fair">Correct</label>
+              </div>
+            </div>
+            <label>Santé de la batterie (%)<input id="pBattery" type="number" min="0" max="100" placeholder="ex. 87"></label>
+            <label>Défauts constatés<input id="pDefects" placeholder="Aucun"></label>
+            <label class="span2">Accessoires fournis<input id="pAccessories" list="accList" placeholder="Chargeur d'origine"><datalist id="accList">
+              <option value="Chargeur d'origine"></option><option value="Chargeur d'origine, boîte d'origine"></option><option value="Chargeur compatible"></option><option value="Sans chargeur"></option>
+            </datalist></label>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2><span class="step-no" id="photoStepNo">3</span>. Photos</h2>
+          <label class="dropzone" id="dropzone">
+            <input type="file" id="pPhotos" accept="image/*" multiple>
+            <strong>Glissez vos photos ici</strong> ou cliquez pour les choisir
+            <span>JPG, PNG ou WebP · 12 photos max · la première est la photo principale</span>
+          </label>
+          <div class="preview-grid" id="photoPreviews"></div>
+        </div>
+
+        <div class="panel">
+          <h2><span class="step-no" id="priceStepNo">4</span>. Prix et publication</h2>
+          <div class="grid2">
+            <label>Prix (TND)<input id="pPrice" type="number" min="0" required placeholder="ex. 1650"></label>
+            <label>Quantité<input id="pQty" type="number" min="1" value="1"></label>
+            <div class="field-block">
+              <label for="pWarranty" class="lbl">Garantie (mois)</label>
+              <div class="chips" data-target="pWarranty" id="warrantyChips"></div>
+              <input id="pWarranty" type="number" min="0" value="12">
+            </div>
+            <label>Statut
+              <select id="pStatus">
+                <option value="available">Disponible (visible en boutique)</option>
+                <option value="hidden">Masqué (brouillon)</option>
+                <option value="sold">Vendu</option>
+              </select>
+            </label>
+            <div class="field-block span2">
+              <div class="desc-head">
+                <label for="pDesc" class="lbl">Description</label>
+                <button type="button" class="link-teal" id="genDescBtn">Générer à partir des caractéristiques</button>
+              </div>
+              <textarea id="pDesc" rows="4" placeholder="Testé en atelier, garantie boutique…"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-teal" type="submit" data-next="dashboard">Enregistrer</button>
+          <button class="btn-teal-outline" type="submit" data-next="another">Enregistrer et ajouter un autre</button>
+          <span class="kbd-hint">⌘/Ctrl + Entrée pour enregistrer</span>
+          <span id="productFormError"></span>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<div id="photoModalRoot"></div>
+<div id="pwModalRoot"></div>
+
+<script src="js/api.js"></script>
+<script src="js/site.js"></script>
+<script>
+const admState = { flatCategories: [] };
+
+function setLoggedIn(loggedIn) {
+  document.getElementById("loginScreen").style.display = loggedIn ? "none" : "flex";
+  document.getElementById("boShell").style.display = loggedIn ? "flex" : "none";
+}
+
+document.getElementById("togglePw").addEventListener("click", () => {
+  const input = document.getElementById("loginPassword");
+  const btn = document.getElementById("togglePw");
+  const show = input.type === "password";
+  input.type = show ? "text" : "password";
+  btn.textContent = show ? "Masquer" : "Afficher";
+});
+
+document.querySelectorAll(".bo-nav button[data-view]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".bo-nav button[data-view]").forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll(".bo-view").forEach((v) => v.classList.remove("active"));
+    document.getElementById(btn.dataset.view === "dashboard" ? "viewDashboard" : "viewAdd").classList.add("active");
+    if (btn.dataset.view === "add" && !document.getElementById("pBrand").value) document.getElementById("pBrand").focus();
+  });
+});
+
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const errEl = document.getElementById("loginError");
+  errEl.style.display = "none";
+  try {
+    const { token } = await api("/admin/login", {
+      method: "POST",
+      body: JSON.stringify({
+        email: document.getElementById("loginEmail").value,
+        password: document.getElementById("loginPassword").value,
+      }),
+    });
+    localStorage.setItem("pcecom_token", token);
+    setLoggedIn(true);
+    await loadAdminDash();
+  } catch (e) {
+    errEl.textContent = e.message;
+    errEl.style.display = "block";
+  }
+});
+
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  localStorage.removeItem("pcecom_token");
+  setLoggedIn(false);
+});
+
+window.addEventListener("auth-expired", () => {
+  if (document.getElementById("loginScreen").style.display !== "none") return;
+  localStorage.removeItem("pcecom_token");
+  setLoggedIn(false);
+  const errEl = document.getElementById("loginError");
+  errEl.textContent = "Votre session a expiré, veuillez vous reconnecter.";
+  errEl.style.display = "block";
+});
+
+// ---------- Change password ----------
+document.getElementById("changePwBtn").addEventListener("click", openChangePasswordModal);
+
+function openChangePasswordModal() {
+  const root = document.getElementById("pwModalRoot");
+  root.innerHTML = `
+    <div class="modal-backdrop" id="pwModalBackdrop">
+      <div class="photo-modal" style="max-width:400px">
+        <div class="photo-modal-head">
+          <h2>Changer le mot de passe</h2>
+          <button id="pwModalClose">&times;</button>
+        </div>
+        <form id="pwForm">
+          <div class="field">
+            <label for="pwCurrent">Mot de passe actuel</label>
+            <div class="input-wrap"><input type="password" id="pwCurrent" required autocomplete="current-password"></div>
+          </div>
+          <div class="field">
+            <label for="pwNew">Nouveau mot de passe</label>
+            <div class="input-wrap"><input type="password" id="pwNew" required minlength="8" autocomplete="new-password"></div>
+          </div>
+          <button class="btn-teal" type="submit">Mettre à jour</button>
+          <p class="login-error" id="pwError" style="text-align:left"></p>
+        </form>
+      </div>
+    </div>`;
+
+  document.getElementById("pwModalClose").addEventListener("click", closePwModal);
+  document.getElementById("pwModalBackdrop").addEventListener("click", (e) => {
+    if (e.target.id === "pwModalBackdrop") closePwModal();
+  });
+  document.getElementById("pwForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const errEl = document.getElementById("pwError");
+    errEl.style.display = "none";
+    try {
+      await api("/admin/password", {
+        method: "PUT",
+        body: JSON.stringify({
+          currentPassword: document.getElementById("pwCurrent").value,
+          newPassword: document.getElementById("pwNew").value,
+        }),
+      });
+      toast("Mot de passe mis à jour");
+      closePwModal();
+    } catch (e) {
+      errEl.textContent = e.message;
+      errEl.style.display = "block";
+    }
+  });
+}
+
+function closePwModal() {
+  document.getElementById("pwModalRoot").innerHTML = "";
+}
+
+async function loadAdminDash() {
+  const tree = await api("/categories");
+  admState.flatCategories = [];
+  (function walk(nodes, parents) {
+    nodes.forEach((n) => {
+      admState.flatCategories.push({ id: n.id, slug: n.slug, label: [...parents, n.name].join(" › ") });
+      walk(n.children || [], [...parents, n.name]);
+    });
+  })(tree, []);
+  document.getElementById("pCategory").innerHTML = admState.flatCategories
+    .map((c) => `<option value="${c.id}">${escapeHtml(c.label)}</option>`).join("");
+
+  try {
+    const stats = await api("/admin/stats");
+    document.getElementById("statsRow").innerHTML = `
+      <div class="stat"><div class="n">${stats.productsAvailable}</div><div class="l">Disponibles</div></div>
+      <div class="stat"><div class="n">${stats.soldThisMonth}</div><div class="l">Vendus ce mois</div></div>
+      <div class="stat"><div class="n">${stats.clicksLast30Days}</div><div class="l">Clics (30j)</div></div>`;
+  } catch (e) {}
+
+  await loadAdminProducts();
+  await refreshProductFormData();
+}
+
+const STATUS_LABEL = { available: "Disponible", sold: "Vendu", hidden: "Masqué" };
+
+async function loadAdminProducts() {
+  const tbody = document.getElementById("adminProductRows");
+  try {
+    const page = await api("/admin/products?page=1&pageSize=100");
+    admState.products = page.items;
+    tbody.innerHTML = page.items.map((p) => {
+      const cover = p.photos && p.photos[0];
+      const thumb = cover
+        ? `<div class="ph"><img src="${cover.thumb}"></div>`
+        : `<div class="ph">—</div>`;
+      return `
+      <tr data-id="${p.id}">
+        <td>
+          <div class="thumb-col">
+            ${thumb}
+            ${!p.photos || !p.photos.length ? '<span class="no-photo-flag">Sans photo</span>' : ""}
+          </div>
+        </td>
+        <td>${escapeHtml(p.brand)} ${escapeHtml(p.model)}</td>
+        <td>${money(p.priceTnd)}</td>
+        <td>${p.quantity}</td>
+        <td><span class="status-pill ${p.status}">${STATUS_LABEL[p.status] || p.status}</span></td>
+        <td class="actions">
+          <button class="link-btn" data-action="photos">Photos${p.photos && p.photos.length ? ` (${p.photos.length})` : ""}</button>
+          ${p.status !== "sold" ? '<button class="link-btn" data-action="sold">Marquer vendu</button>' : ""}
+          <button class="link-btn danger" data-action="delete">Supprimer</button>
+        </td>
+      </tr>`;
+    }).join("") || '<tr><td colspan="6" class="empty">Aucun produit.</td></tr>';
+  } catch (e) {
+    if (document.getElementById("loginScreen").style.display === "none") toast("Impossible de charger les produits : " + e.message);
+  }
+}
+
+document.getElementById("adminProductRows").addEventListener("click", async (e) => {
+  const btn = e.target.closest("button");
+  if (!btn) return;
+  const id = Number(btn.closest("tr").dataset.id);
+  try {
+    if (btn.dataset.action === "photos") {
+      openPhotoModal(id);
+      return;
+    }
+    if (btn.dataset.action === "sold") {
+      await api(`/admin/products/${id}/status`, { method: "PATCH", body: JSON.stringify({ status: "sold" }) });
+      toast("Marqué comme vendu");
+    } else if (btn.dataset.action === "delete") {
+      if (!confirm("Supprimer ce produit ?")) return;
+      await api(`/admin/products/${id}`, { method: "DELETE" });
+      toast("Produit supprimé");
+    }
+    await loadAdminProducts();
+  } catch (e) { toast(e.message); }
+});
+
+// ---------- Photo management ----------
+async function openPhotoModal(productId) {
+  let product;
+  try {
+    product = await api(`/admin/products/${productId}`);
+  } catch (e) {
+    toast("Impossible de charger le produit : " + e.message);
+    return;
+  }
+  renderPhotoModal(product);
+}
+
+function renderPhotoModal(product) {
+  const root = document.getElementById("photoModalRoot");
+  const photosHtml = (product.photos || []).map((ph, i) => `
+    <div class="photo-tile${i === 0 ? " main" : ""}" data-photo-id="${ph.id}">
+      <img src="${ph.medium}">
+      ${i === 0 ? '<span class="main-tag">Principale</span>' : ""}
+      <button class="del" data-photo-id="${ph.id}" title="Supprimer">×</button>
+    </div>`).join("");
+
+  root.innerHTML = `
+    <div class="modal-backdrop" id="photoModalBackdrop">
+      <div class="photo-modal">
+        <div class="photo-modal-head">
+          <h2>Photos — ${escapeHtml(product.brand)} ${escapeHtml(product.model)}</h2>
+          <button id="photoModalClose">&times;</button>
+        </div>
+        <p class="sub">La première photo est utilisée comme photo principale. Formats JPG/PNG/WebP, 12 photos max.</p>
+        ${photosHtml ? `<div class="photo-grid">${photosHtml}</div>` : '<p class="photo-modal-empty">Aucune photo pour ce produit pour le moment.</p>'}
+        <label class="photo-drop">
+          <input type="file" id="photoFileInput" accept="image/*" multiple>
+          + Ajouter des photos
+        </label>
+      </div>
+    </div>`;
+
+  document.getElementById("photoModalClose").addEventListener("click", closePhotoModal);
+  document.getElementById("photoModalBackdrop").addEventListener("click", (e) => {
+    if (e.target.id === "photoModalBackdrop") closePhotoModal();
+  });
+
+  document.querySelectorAll(".photo-tile .del").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      try {
+        const updated = await api(`/admin/products/${product.id}/photos/${btn.dataset.photoId}`, { method: "DELETE" });
+        toast("Photo supprimée");
+        renderPhotoModal(updated);
+        await loadAdminProducts();
+      } catch (e) { toast(e.message); }
+    });
+  });
+
+  document.getElementById("photoFileInput").addEventListener("change", async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    const form = new FormData();
+    files.forEach((f) => form.append("file", f));
+    try {
+      const updated = await api(`/admin/products/${product.id}/photos`, { method: "POST", body: form });
+      toast(`${files.length > 1 ? "Photos ajoutées" : "Photo ajoutée"}`);
+      renderPhotoModal(updated);
+      await loadAdminProducts();
+    } catch (e) {
+      toast("Échec de l'envoi : " + e.message);
+    }
+  });
+}
+
+function closePhotoModal() {
+  document.getElementById("photoModalRoot").innerHTML = "";
+}
+
+// ---------- Add-product form ----------
+const $ = (id) => document.getElementById(id);
+
+const APPLE_SPECS = {
+  os: ["macOS Tahoe 26", "macOS Sequoia 15", "macOS Sonoma 14", "macOS Ventura 13", "macOS Monterey 12"],
+  cpu: ["Apple M1", "Apple M1 Pro", "Apple M1 Max", "Apple M2", "Apple M2 Pro", "Apple M2 Max", "Apple M3", "Apple M3 Pro",
+        "Apple M3 Max", "Apple M4", "Apple M4 Pro", "Apple M4 Max", "Apple M5", "Intel Core i5", "Intel Core i7"],
+  ram: [8, 16, 18, 24, 32, 36, 48, 64],
+  screen: [13.3, 13.6, 14.2, 15.3, 16.2],
+  gpu: ["GPU intégré Apple"],
+  storageType: "SSD",
+};
+const PC_SPECS = {
+  os: ["Windows 11 Pro", "Windows 11 Famille", "Windows 10 Pro", "Sans système (FreeDOS)", "Linux (Ubuntu)"],
+  cpu: ["Intel Core i3", "Intel Core i5", "Intel Core i7", "Intel Core i9", "Intel Core Ultra 5", "Intel Core Ultra 7",
+        "Intel Core Ultra 9", "AMD Ryzen 3", "AMD Ryzen 5", "AMD Ryzen 7", "AMD Ryzen 9", "Intel Celeron", "Intel Pentium"],
+  ram: [4, 8, 12, 16, 24, 32, 64],
+  screen: [13.3, 14, 15.6, 16, 17.3, 18],
+  gpu: ["Intégrée", "Intel Iris Xe", "Intel UHD", "AMD Radeon", "RTX 3050 4 Go", "RTX 3050 6 Go", "RTX 4050 6 Go",
+        "RTX 4060 8 Go", "RTX 4070 8 Go", "RTX 4080 12 Go", "RTX 4090 16 Go", "RTX 5060 8 Go", "RTX 5070 8 Go",
+        "RTX 5080 16 Go", "RTX 5090 24 Go"],
+  storageType: "SSD NVMe",
+};
+const CHROMEOS_BRANDS = ["acer", "hp", "lenovo", "asus", "samsung"];
+const GAMING_BRANDS = ["msi", "razer", "alienware"];
+const COMMON_BRANDS = ["Apple", "Dell", "HP", "Lenovo", "Asus", "Acer", "MSI"];
+const MORE_BRANDS = ["Microsoft", "Samsung", "Huawei", "Razer", "Gigabyte", "Toshiba", "Alienware", "Fujitsu", "Xiaomi", "Montage"];
+const STORAGE_VALUES = [128, 256, 512, 1024, 2048];
+const WARRANTY_VALUES = [0, 3, 6, 12, 24];
+const OS_OTHER = "__other";
+
+const formState = { photos: [], categoryTouched: false, warrantyTouched: false, knownBrands: [...COMMON_BRANDS, ...MORE_BRANDS] };
+
+const isApple = () => $("pBrand").value.trim().toLowerCase() === "apple";
+const specs = () => (isApple() ? APPLE_SPECS : PC_SPECS);
+const isUsedSelected = () => $("pCondUsed").checked;
+
+function numOrNull(id) {
+  const v = $(id).value;
+  return v === "" ? null : Number(v);
+}
+function strOrNull(id) {
+  const v = $(id).value.trim();
+  return v === "" ? null : v;
+}
+function setOptions(datalistId, values) {
+  $(datalistId).innerHTML = values.map((v) => `<option value="${escapeHtml(v)}"></option>`).join("");
+}
+function ensureOption(select, value) {
+  if (![...select.options].some((o) => o.value === value)) select.add(new Option(value, value));
+  select.value = value;
+}
+
+// Chips: one click fills the linked input; typing highlights the matching chip.
+function renderChips(containerId, targetId, values, fmt) {
+  $(containerId).innerHTML = values.map((v) =>
+    `<button type="button" class="chip" data-value="${escapeHtml(String(v))}">${escapeHtml(fmt(v))}</button>`).join("");
+  $(containerId).dataset.target = targetId;
+  syncChips(containerId);
+}
+function syncChips(containerId) {
+  const box = $(containerId);
+  const val = $(box.dataset.target).value.trim().toLowerCase();
+  box.querySelectorAll(".chip").forEach((c) => c.classList.toggle("active", val !== "" && c.dataset.value.toLowerCase() === val));
+}
+document.querySelectorAll(".chips").forEach((box) => {
+  box.addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    const input = $(box.dataset.target);
+    input.value = chip.dataset.value;
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+});
+[["pBrand", "brandChips"], ["pRam", "ramChips"], ["pStorage", "storageChips"], ["pScreen", "screenChips"], ["pWarranty", "warrantyChips"]]
+  .forEach(([input, box]) => $(input).addEventListener("input", () => syncChips(box)));
+
+// Everything that depends on the brand: CPU/GPU suggestions, OS list, RAM & screen chips, models, category.
+function refreshBrandDependent() {
+  const s = specs();
+  const brand = $("pBrand").value.trim().toLowerCase();
+
+  setOptions("cpuList", s.cpu);
+  $("pProcessor").placeholder = isApple() ? "Apple M2" : "Intel Core i5-1145G7";
+  setOptions("gpuList", s.gpu);
+  renderChips("ramChips", "pRam", s.ram, (v) => `${v} Go`);
+  renderChips("screenChips", "pScreen", s.screen, (v) => `${String(v).replace(".", ",")}"`);
+
+  const osList = [...s.os];
+  if (CHROMEOS_BRANDS.includes(brand)) osList.push("ChromeOS");
+  const sel = $("pOsSelect");
+  const previous = sel.value === OS_OTHER ? null : sel.value;
+  sel.innerHTML = osList.map((o) => `<option>${escapeHtml(o)}</option>`).join("")
+    + `<option value="">Non précisé</option><option value="${OS_OTHER}">Autre…</option>`;
+  sel.value = previous !== null && osList.includes(previous) ? previous : osList[0];
+  $("pOsOther").style.display = sel.value === OS_OTHER ? "block" : "none";
+
+  if (isApple()) $("pStorageType").value = "SSD";
+  else if ($("pStorageType").value === "SSD") $("pStorageType").value = PC_SPECS.storageType;
+
+  const models = [...new Set((admState.products || [])
+    .filter((p) => p.brand.toLowerCase() === brand).map((p) => p.model))];
+  setOptions("modelList", models);
+
+  suggestCategory();
+}
+
+function categoryIdBySlug(slug) {
+  const c = admState.flatCategories.find((x) => x.slug === slug);
+  return c ? String(c.id) : null;
+}
+function suggestCategory() {
+  if (formState.categoryTouched) return;
+  const brand = $("pBrand").value.trim().toLowerCase();
+  const model = $("pModel").value.toLowerCase();
+  const gpu = $("pGpu").value.toLowerCase();
+  let slug;
+  if (brand === "apple") slug = model.includes("air") ? "macbook-air" : model.includes("pro") ? "macbook-pro" : "macbook";
+  else if (GAMING_BRANDS.includes(brand) || gpu.includes("rtx")) slug = "pc-portables-gaming";
+  else if (brand) slug = "pc-portables";
+  const id = slug && categoryIdBySlug(slug);
+  if (id) $("pCategory").value = id;
+}
+
+$("pBrand").addEventListener("change", () => {
+  const typed = $("pBrand").value.trim();
+  const known = formState.knownBrands.find((b) => b.toLowerCase() === typed.toLowerCase());
+  if (known) $("pBrand").value = known;
+  syncChips("brandChips");
+  refreshBrandDependent();
+});
+$("pBrand").addEventListener("input", () => { if (!$("pBrand").value.trim()) refreshBrandDependent(); });
+$("pModel").addEventListener("input", suggestCategory);
+$("pGpu").addEventListener("change", suggestCategory);
+$("pCategory").addEventListener("change", () => { formState.categoryTouched = true; });
+$("pOsSelect").addEventListener("change", () => {
+  const other = $("pOsSelect").value === OS_OTHER;
+  $("pOsOther").style.display = other ? "block" : "none";
+  if (other) $("pOsOther").focus();
+});
+$("pWarranty").addEventListener("input", () => { formState.warrantyTouched = true; });
+
+function applyCondType() {
+  const used = isUsedSelected();
+  $("usedPanel").style.display = used ? "block" : "none";
+  $("photoStepNo").textContent = used ? "4" : "3";
+  $("priceStepNo").textContent = used ? "5" : "4";
+  $("pQty").disabled = used;
+  if (used) $("pQty").value = 1;
+  if (!formState.warrantyTouched) {
+    $("pWarranty").value = used ? 3 : 12;
+    syncChips("warrantyChips");
+  }
+}
+document.querySelectorAll('input[name="pCondType"]').forEach((r) => r.addEventListener("change", applyCondType));
+
+// ---------- Photos picked before saving ----------
+function addPhotos(fileList) {
+  const images = [...fileList].filter((f) => f.type.startsWith("image/"));
+  const room = 12 - formState.photos.length;
+  if (images.length > room) toast(`12 photos maximum — ${images.length - room} ignorée(s)`);
+  images.slice(0, Math.max(room, 0)).forEach((file) => formState.photos.push({ file, url: URL.createObjectURL(file) }));
+  renderPreviews();
+}
+function renderPreviews() {
+  $("photoPreviews").innerHTML = formState.photos.map((p, i) => `
+    <div class="preview${i === 0 ? " main" : ""}" data-i="${i}" title="${i === 0 ? "Photo principale" : "Cliquer pour en faire la photo principale"}">
+      <img src="${p.url}" alt="">
+      <span class="tag">${i === 0 ? "Principale" : i + 1}</span>
+      <button type="button" class="rm" data-i="${i}" title="Retirer">×</button>
+    </div>`).join("");
+}
+function clearPhotos() {
+  formState.photos.forEach((p) => URL.revokeObjectURL(p.url));
+  formState.photos = [];
+  renderPreviews();
+}
+$("pPhotos").addEventListener("change", (e) => { addPhotos(e.target.files); e.target.value = ""; });
+$("photoPreviews").addEventListener("click", (e) => {
+  const rm = e.target.closest(".rm");
+  if (rm) {
+    const [removed] = formState.photos.splice(Number(rm.dataset.i), 1);
+    URL.revokeObjectURL(removed.url);
+    renderPreviews();
+    return;
+  }
+  const tile = e.target.closest(".preview");
+  if (tile && tile.dataset.i !== "0") {
+    const [picked] = formState.photos.splice(Number(tile.dataset.i), 1);
+    formState.photos.unshift(picked);
+    renderPreviews();
+  }
+});
+const dz = $("dropzone");
+["dragenter", "dragover"].forEach((ev) => dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.add("drag"); }));
+["dragleave", "drop"].forEach((ev) => dz.addEventListener(ev, () => dz.classList.remove("drag")));
+dz.addEventListener("drop", (e) => { e.preventDefault(); addPhotos(e.dataTransfer.files); });
+
+// ---------- Description generator ----------
+function storageLabel(gb) {
+  return gb >= 1024 ? `${gb / 1024} To` : `${gb} Go`;
+}
+$("genDescBtn").addEventListener("click", () => {
+  const brand = $("pBrand").value.trim();
+  const model = $("pModel").value.trim();
+  if (!brand || !model) { toast("Renseignez d'abord la marque et le modèle"); return; }
+  const used = isUsedSelected();
+  const condition = used ? document.querySelector('input[name="pCondition"]:checked').value : null;
+  const parts = [];
+  if ($("pProcessor").value.trim()) parts.push($("pProcessor").value.trim());
+  if ($("pRam").value) parts.push(`${$("pRam").value} Go de RAM`);
+  if ($("pStorage").value) parts.push(`${$("pStorageType").value} ${storageLabel(Number($("pStorage").value))}`);
+  if ($("pGpu").value.trim()) parts.push(`carte graphique ${$("pGpu").value.trim()}`);
+  if ($("pScreen").value) parts.push(`écran ${String($("pScreen").value).replace(".", ",")} pouces`);
+  const os = $("pOsSelect").value === OS_OTHER ? $("pOsOther").value.trim() : $("pOsSelect").value;
+  if (os) parts.push(os);
+
+  let text = `${brand} ${model} ${used ? `d'occasion, état ${CONDITION_LABEL[condition].toLowerCase()}` : "neuf"}`;
+  if (parts.length) text += ` : ${parts.join(", ")}.`; else text += ".";
+  if (used) {
+    if ($("pBattery").value) text += ` Batterie à ${$("pBattery").value} %.`;
+    const defects = $("pDefects").value.trim();
+    text += defects && defects.toLowerCase() !== "aucun" ? ` Défauts : ${defects}.` : " Aucun défaut constaté.";
+    text += " Testé en atelier.";
+  }
+  const w = Number($("pWarranty").value || 0);
+  if (w > 0) text += ` Garantie ${used ? "boutique " : ""}${w} mois.`;
+  $("pDesc").value = text;
+});
+
+// ---------- Prefill from an existing product ----------
+function refreshPrefillList() {
+  const sel = $("pPrefill");
+  const current = sel.value;
+  const items = [...(admState.products || [])].sort((a, b) => `${a.brand} ${a.model}`.localeCompare(`${b.brand} ${b.model}`));
+  sel.innerHTML = '<option value="">— Choisir un produit —</option>' + items.map((p) =>
+    `<option value="${p.id}">${escapeHtml(p.brand)} ${escapeHtml(p.model)}${p.isUsed ? " (occasion)" : ""} — ${money(p.priceTnd)}</option>`).join("");
+  sel.value = current;
+  $("pPrefillBtn").disabled = !sel.value;
+}
+$("pPrefill").addEventListener("change", () => { $("pPrefillBtn").disabled = !$("pPrefill").value; });
+$("pPrefillBtn").addEventListener("click", () => {
+  const p = (admState.products || []).find((x) => String(x.id) === $("pPrefill").value);
+  if (!p) return;
+  $(p.isUsed ? "pCondUsed" : "pCondNew").checked = true;
+  $("pBrand").value = p.brand;
+  $("pModel").value = p.model;
+  syncChips("brandChips");
+  refreshBrandDependent();
+  $("pCategory").value = String(p.categoryId);
+  formState.categoryTouched = true;
+  $("pProcessor").value = p.processor || "";
+  $("pRam").value = p.ramGb ?? "";
+  $("pStorage").value = p.storageGb ?? "";
+  if (p.storageType) ensureOption($("pStorageType"), p.storageType);
+  $("pGpu").value = p.gpu || "";
+  $("pScreen").value = p.screenInches ?? "";
+  if (p.keyboard) ensureOption($("pKeyboard"), p.keyboard);
+  const osSel = $("pOsSelect");
+  if (!p.os) osSel.value = "";
+  else if ([...osSel.options].some((o) => o.value === p.os)) osSel.value = p.os;
+  else { osSel.value = OS_OTHER; $("pOsOther").value = p.os; }
+  $("pOsOther").style.display = osSel.value === OS_OTHER ? "block" : "none";
+  if (p.used) {
+    document.querySelector(`input[name="pCondition"][value="${p.used.condition}"]`).checked = true;
+    $("pBattery").value = p.used.batteryHealth ?? "";
+    $("pDefects").value = p.used.defects || "";
+    $("pAccessories").value = p.used.accessories || "";
+  }
+  $("pWarranty").value = p.warrantyMonths;
+  formState.warrantyTouched = true;
+  $("pDesc").value = p.description || "";
+  $("pPrice").value = "";
+  ["ramChips", "storageChips", "screenChips", "warrantyChips"].forEach(syncChips);
+  applyCondType();
+  $("pPrice").focus();
+  toast("Caractéristiques copiées — indiquez le prix et ajoutez les photos");
+});
+
+// ---------- Setup, reset, submit ----------
+async function refreshProductFormData() {
+  let brands = [];
+  try { brands = await api("/brands"); } catch (e) {}
+  const all = [...formState.knownBrands, ...brands, ...(admState.products || []).map((p) => p.brand)];
+  const seen = new Map();
+  all.forEach((b) => { if (b && !seen.has(b.toLowerCase())) seen.set(b.toLowerCase(), b); });
+  formState.knownBrands = [...seen.values()];
+  setOptions("brandList", formState.knownBrands);
+  refreshPrefillList();
+  refreshBrandDependent();
+}
+
+function resetProductForm(keep) {
+  const kept = keep ? { used: isUsedSelected(), brand: $("pBrand").value, category: $("pCategory").value } : null;
+  $("productForm").reset();
+  $("pPrefillBtn").disabled = true;
+  clearPhotos();
+  formState.warrantyTouched = false;
+  formState.categoryTouched = false;
+  if (kept) {
+    $(kept.used ? "pCondUsed" : "pCondNew").checked = true;
+    $("pBrand").value = kept.brand;
+  }
+  refreshBrandDependent();
+  if (kept) { $("pCategory").value = kept.category; formState.categoryTouched = true; }
+  $("pOsOther").style.display = "none";
+  applyCondType();
+  ["brandChips", "ramChips", "storageChips", "screenChips", "warrantyChips"].forEach(syncChips);
+  $("productFormError").textContent = "";
+}
+
+renderChips("brandChips", "pBrand", COMMON_BRANDS, (v) => v);
+renderChips("storageChips", "pStorage", STORAGE_VALUES, storageLabel);
+renderChips("warrantyChips", "pWarranty", WARRANTY_VALUES, (v) => (v === 0 ? "Aucune" : `${v} mois`));
+applyCondType();
+
+$("productForm").addEventListener("keydown", (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+    e.preventDefault();
+    $("productForm").requestSubmit($("productForm").querySelector('[data-next="dashboard"]'));
+  }
+});
+
+$("productForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const next = (e.submitter && e.submitter.dataset.next) || "dashboard";
+  const errEl = $("productFormError");
+  errEl.textContent = "";
+
+  const used = isUsedSelected();
+  const osValue = $("pOsSelect").value === OS_OTHER ? $("pOsOther").value.trim() : $("pOsSelect").value;
+  const body = {
+    categoryId: Number($("pCategory").value),
+    isUsed: used,
+    brand: $("pBrand").value.trim(),
+    model: $("pModel").value.trim(),
+    processor: strOrNull("pProcessor"),
+    ramGb: numOrNull("pRam"),
+    storageGb: numOrNull("pStorage"),
+    storageType: strOrNull("pStorageType"),
+    gpu: strOrNull("pGpu"),
+    screenInches: numOrNull("pScreen"),
+    os: osValue || null,
+    keyboard: strOrNull("pKeyboard"),
+    priceTnd: Number($("pPrice").value),
+    quantity: used ? 1 : Number($("pQty").value || 1),
+    status: $("pStatus").value,
+    description: strOrNull("pDesc"),
+    warrantyMonths: Number($("pWarranty").value || 0),
+    used: used ? {
+      condition: document.querySelector('input[name="pCondition"]:checked').value,
+      batteryHealth: numOrNull("pBattery"),
+      defects: strOrNull("pDefects"),
+      accessories: strOrNull("pAccessories"),
+    } : null,
+  };
+
+  const buttons = $("productForm").querySelectorAll(".form-actions button");
+  buttons.forEach((b) => (b.disabled = true));
+  let created;
+  try {
+    created = await api("/admin/products", { method: "POST", body: JSON.stringify(body) });
+  } catch (err) {
+    errEl.textContent = err.message;
+    buttons.forEach((b) => (b.disabled = false));
+    return;
+  }
+
+  let photoError = null;
+  if (formState.photos.length) {
+    const form = new FormData();
+    formState.photos.forEach((p) => form.append("file", p.file));
+    try {
+      created = await api(`/admin/products/${created.id}/photos`, { method: "POST", body: form });
+    } catch (err) {
+      photoError = err.message;
+    }
+  }
+  buttons.forEach((b) => (b.disabled = false));
+
+  await loadAdminProducts();
+  refreshPrefillList();
+  resetProductForm(next === "another");
+
+  if (photoError) {
+    toast(`Produit enregistré, mais l'envoi des photos a échoué : ${photoError}`);
+    renderPhotoModal(created);
+  } else {
+    const n = created.photos.length;
+    toast(`${created.brand} ${created.model} enregistré${n ? ` avec ${n} photo${n > 1 ? "s" : ""}` : " (sans photo)"}`);
+  }
+
+  if (next === "another") {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    $(body.brand ? "pModel" : "pBrand").focus();
+  } else {
+    document.querySelector('.bo-nav button[data-view="dashboard"]').click();
+  }
+});
+
+(async function () {
+  await initSite(null);
+  const token = localStorage.getItem("pcecom_token");
+  if (token) {
+    setLoggedIn(true);
+    loadAdminDash().catch(() => { localStorage.removeItem("pcecom_token"); setLoggedIn(false); });
+  } else {
+    setLoggedIn(false);
+  }
+})();
+</script>
+</body>
+</html>

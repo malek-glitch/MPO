@@ -1,0 +1,9 @@
+.env
+.env.run
+.gradle/
+.kotlin/
+build/
+.idea/
+*.iml
+node_modules/
+.svelte-kit/

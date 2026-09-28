@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche produit — Meilleurs Prix Ordinateur</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-top">
+    <a class="brand" href="index.html">
+      <img class="logo" data-store="logo" src="assets/mpo-logo.png" alt="Logo">
+      <div>
+        <div class="name" data-store="name">Meilleurs Prix Ordinateur</div>
+        <div class="tagline" data-store="tagline">Vente &amp; achat PC &amp; Mac</div>
+      </div>
+    </a>
+  </div>
+  <nav class="site-nav">
+    <a href="index.html" data-nav="accueil">Accueil</a>
+    <a href="products.html" data-nav="tous">Tous les PC</a>
+    <a href="products.html?category=pc-portables" data-nav="portables">PC portables</a>
+    <a href="products.html?category=macbook" data-nav="macbook">MacBook</a>
+    <a href="products.html?category=pc-de-bureau" data-nav="bureau">PC de bureau</a>
+    <a href="products.html?used=true" data-nav="occasions">Occasions</a>
+    <a href="index.html#nous-trouver" data-nav="nous-trouver">Nous trouver</a>
+  </nav>
+</header>
+
+<nav class="breadcrumb" id="breadcrumb">
+  <a href="index.html">Accueil</a>
+</nav>
+
+<div class="pdp-shell" id="pdpShell">
+  <div id="gallerySection">
+    <div class="gallery-main" id="galleryMain">
+      photo 1 · vue de face
+      <button class="gallery-nav prev" id="galPrev">‹</button>
+      <button class="gallery-nav next" id="galNext">›</button>
+      <span class="gallery-count" id="galCount"></span>
+    </div>
+    <div class="thumb-strip" id="thumbStrip"></div>
+  </div>
+
+  <div id="infoSection">
+    <div class="pdp-badges" id="pdpBadges"></div>
+    <div class="pdp-brand" id="pdpBrand">&nbsp;</div>
+    <h1 class="pdp-title" id="pdpTitle">Chargement…</h1>
+    <div class="pdp-specline" id="pdpSpecline"></div>
+    <div class="pdp-price">
+      <span id="pdpPrice"></span>
+      <span class="stock-ok" id="pdpStock"><span class="dot"></span>En stock</span>
+    </div>
+
+    <a class="wa-cta js-wa-product" href="#" target="_blank" rel="noopener">
+      <svg class="wa-icon" viewBox="0 0 32 32" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M16.04 3C9.37 3 3.98 8.4 3.98 15.07c0 2.35.66 4.6 1.9 6.57L3 29l7.53-1.97a12.07 12.07 0 0 0 5.5 1.36h.01c6.67 0 12.06-5.4 12.06-12.07C28.1 8.65 22.7 3 16.04 3Zm0 2.06c5.48 0 9.94 4.45 9.94 9.94 0 5.48-4.46 9.94-9.94 9.94a9.9 9.9 0 0 1-5.04-1.38l-.36-.21-4.47 1.17 1.2-4.36-.24-.38a9.86 9.86 0 0 1-1.53-5.3c0-5.49 4.45-9.94 9.94-9.94Zm-5.5 5.18c-.19 0-.5.07-.76.36-.26.29-1 1-1 2.43s1.02 2.82 1.16 3.02c.14.19 2.02 3.25 4.98 4.43 2.48.99 2.98.79 3.52.74.54-.05 1.75-.71 2-1.4.24-.68.24-1.27.17-1.4-.07-.12-.26-.19-.55-.34-.29-.14-1.74-.86-2.01-.96-.27-.1-.47-.14-.66.14-.2.29-.76.95-.93 1.15-.17.19-.34.22-.63.07-.29-.14-1.22-.45-2.32-1.44-.86-.76-1.44-1.7-1.61-1.99-.17-.29-.02-.44.13-.58.13-.13.29-.34.43-.51.14-.17.19-.29.29-.48.1-.19.05-.36-.02-.5-.07-.14-.66-1.6-.9-2.2-.24-.57-.48-.5-.66-.5Z"/></svg>
+      Contacter sur WhatsApp
+    </a>
+
+    <div class="wa-preview">
+      <div class="label">Message pré-rempli</div>
+      <p id="waPreviewText">…</p>
+    </div>
+
+    <div class="info-cards">
+      <div class="info-card"><h4>Livraison partout en Tunisie</h4><p id="deliveryInfo">7 TND · 24 à 48 h · paiement à la livraison</p></div>
+      <div class="info-card"><h4>Retrait en boutique</h4><p id="pickupInfo">Tunis - LAFAYETTE · Lun–Sam 9h–19h</p></div>
+    </div>
+  </div>
+</div>
+
+<div class="pdp-panels" id="pdpPanels" style="display:none">
+  <div class="panel">
+    <h2>Caractéristiques techniques</h2>
+    <table class="spec-table" id="specTable"></table>
+  </div>
+  <div class="panel" id="usedPanel">
+    <h2>État de l'appareil</h2>
+    <div id="battWrap"></div>
+    <div id="stateRows"></div>
+  </div>
+</div>
+
+<div class="section" style="max-width:1180px;margin-left:auto;margin-right:auto" id="descSection">
+  <div class="panel">
+    <h2>Description</h2>
+    <p class="desc-text" id="descText"></p>
+  </div>
+</div>
+
+<footer class="site-footer" id="footer"></footer>
+
+<script src="js/api.js"></script>
+<script src="js/site.js"></script>
+<script src="js/footer.js"></script>
+<script>
+let product = null;
+let store = null;
+let photoIndex = 0;
+
+function slugFromUrl() {
+  return new URLSearchParams(location.search).get("slug") || "";
+}
+
+function renderGallery() {
+  const photos = product.photos || [];
+  const main = document.getElementById("galleryMain");
+  const count = document.getElementById("galCount");
+  if (!photos.length) {
+    main.innerHTML = `photo ${photoIndex + 1} · aucune image<button class="gallery-nav prev" id="galPrev">‹</button><button class="gallery-nav next" id="galNext">›</button>`;
+    count.textContent = "";
+  } else {
+    const p = photos[photoIndex];
+    main.innerHTML = `<img src="${p.large}"><button class="gallery-nav prev" id="galPrev">‹</button><button class="gallery-nav next" id="galNext">›</button>`;
+    count.textContent = `${photoIndex + 1} / ${photos.length}`;
+  }
+  document.getElementById("galPrev").onclick = () => { photoIndex = (photoIndex - 1 + photos.length) % (photos.length || 1); renderGallery(); };
+  document.getElementById("galNext").onclick = () => { photoIndex = (photoIndex + 1) % (photos.length || 1); renderGallery(); };
+
+  document.getElementById("thumbStrip").innerHTML = photos.map((p, i) => `
+    <button class="thumb${i === photoIndex ? " active" : ""}" data-i="${i}"><img src="${p.thumb}"></button>`).join("");
+  document.querySelectorAll(".thumb").forEach((t) => t.addEventListener("click", () => { photoIndex = Number(t.dataset.i); renderGallery(); }));
+}
+
+function renderBreadcrumb(tree) {
+  const path = findCategoryPath(tree, categorySlugOf(tree, product.categoryId));
+  const el = document.getElementById("breadcrumb");
+  let html = `<a href="index.html">Accueil</a> <span>›</span> <a href="products.html">Ordinateurs</a>`;
+  if (path) {
+    path.forEach((c) => { html += ` <span>›</span> <a href="products.html?category=${encodeURIComponent(c.slug)}">${escapeHtml(c.name)}</a>`; });
+  }
+  el.innerHTML = html;
+}
+
+function categorySlugOf(tree, id) {
+  let found = null;
+  (function walk(nodes) {
+    for (const n of nodes) {
+      if (n.id === id) { found = n.slug; return; }
+      walk(n.children || []);
+    }
+  })(tree);
+  return found;
+}
+
+function renderBadges() {
+  const el = document.getElementById("pdpBadges");
+  el.innerHTML = conditionBadgeHtml(product) + `<span class="ref">Réf. #${product.id}</span>`;
+}
+
+function renderStock() {
+  const el = document.getElementById("pdpStock");
+  if (product.status === "sold") {
+    el.innerHTML = `<span class="dot" style="background:var(--muted-2)"></span>Vendu`;
+    el.style.color = "var(--muted-2)";
+    document.querySelector(".wa-cta").style.display = "none";
+  } else if (product.quantity <= 1) {
+    el.innerHTML = `<span class="dot"></span>En stock · dernier exemplaire`;
+  } else {
+    el.innerHTML = `<span class="dot"></span>En stock · ${product.quantity} disponibles`;
+  }
+}
+
+function renderSpecs() {
+  const rows = [
+    ["Processeur", product.processor],
+    ["Mémoire RAM", product.ramGb ? product.ramGb + " Go" : null],
+    ["Stockage", product.storageGb ? product.storageGb + " Go · " + (product.storageType || "") : null],
+    ["Carte graphique", product.gpu],
+    ["Écran", product.screenInches ? product.screenInches + " pouces" : null],
+    ["Système", product.os],
+    ["Clavier", product.keyboard],
+    ["Garantie", product.warrantyMonths ? product.warrantyMonths + " mois (boutique)" : "—"],
+  ].filter(([, v]) => v);
+  document.getElementById("specTable").innerHTML = rows.map(([k, v]) => `<tr><td>${k}</td><td>${escapeHtml(String(v))}</td></tr>`).join("");
+}
+
+function renderUsedPanel() {
+  const panel = document.getElementById("usedPanel");
+  if (!product.isUsed || !product.used) { panel.style.display = "none"; return; }
+  const u = product.used;
+  const battWrap = document.getElementById("battWrap");
+  if (u.batteryHealth != null) {
+    battWrap.innerHTML = `
+      <div class="batt-row"><span>Santé de la batterie</span><strong>${u.batteryHealth} %</strong></div>
+      <div class="batt-bar"><span style="width:${u.batteryHealth}%"></span></div>`;
+  }
+  document.getElementById("stateRows").innerHTML = `
+    <div class="state-row"><span>État général</span><span>${CONDITION_LABEL[u.condition] || u.condition}</span></div>
+    <div class="state-row"><span>Défauts constatés</span><span>${escapeHtml(u.defects || "Aucun")}</span></div>
+    <div class="state-row"><span>Accessoires fournis</span><span>${escapeHtml(u.accessories || "—")}</span></div>`;
+}
+
+function renderWhatsapp() {
+  const link = waLink(store, product);
+  document.querySelector(".wa-cta").href = link;
+  const url = new URL(link);
+  document.getElementById("waPreviewText").textContent = decodeURIComponent(url.searchParams.get("text"));
+}
+
+async function load() {
+  const slug = slugFromUrl();
+  try {
+    [product, store] = await Promise.all([api("/products/" + encodeURIComponent(slug)), getStore()]);
+  } catch (e) {
+    document.getElementById("pdpTitle").textContent = "Produit introuvable";
+    document.getElementById("infoSection").innerHTML += `<p class="empty">${escapeHtml(e.message)}</p>`;
+    return;
+  }
+  document.title = `${product.brand} ${product.model} — Meilleurs Prix Ordinateur`;
+  document.getElementById("pdpBrand").textContent = product.brand;
+  document.getElementById("pdpTitle").textContent = `${product.brand} ${product.model}`;
+  document.getElementById("pdpSpecline").textContent = specLine(product);
+  document.getElementById("pdpPrice").textContent = money(product.priceTnd);
+  document.getElementById("descText").textContent = product.description || "Aucune description fournie.";
+  document.getElementById("pickupInfo").innerHTML = `<span data-store="address">${escapeHtml(store.address || "Tunis - LAFAYETTE")}</span> · Lun–Sam 9h–19h`;
+
+  renderBadges();
+  renderStock();
+  renderGallery();
+  renderSpecs();
+  renderUsedPanel();
+  renderWhatsapp();
+  document.getElementById("pdpPanels").style.display = "grid";
+
+  try {
+    const tree = await api("/categories");
+    renderBreadcrumb(tree);
+  } catch (e) {}
+}
+
+(async function () {
+  await initSite(null);
+  load();
+})();
+</script>
+</body>
+</html>

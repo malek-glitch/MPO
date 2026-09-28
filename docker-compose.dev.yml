@@ -1,0 +1,29 @@
+# Local development: PostgreSQL + MinIO. Run the API from your IDE or with ./gradlew run.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: pcecom
+      POSTGRES_USER: pcecom
+      POSTGRES_PASSWORD: pcecom
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  minio:
+    # Last official community image. See README note on MinIO.
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - miniodata:/data
+
+volumes:
+  pgdata:
+  miniodata:

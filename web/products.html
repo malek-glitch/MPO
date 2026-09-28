@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tous les ordinateurs — Meilleurs Prix Ordinateur</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-top">
+    <a class="brand" href="index.html">
+      <img class="logo" data-store="logo" src="assets/mpo-logo.png" alt="Logo">
+      <div>
+        <div class="name" data-store="name">Meilleurs Prix Ordinateur</div>
+        <div class="tagline" data-store="tagline">Vente &amp; achat PC &amp; Mac</div>
+      </div>
+    </a>
+  </div>
+  <nav class="site-nav">
+    <a href="index.html" data-nav="accueil">Accueil</a>
+    <a href="products.html" data-nav="tous">Tous les PC</a>
+    <a href="products.html?category=pc-portables" data-nav="portables">PC portables</a>
+    <a href="products.html?category=macbook" data-nav="macbook">MacBook</a>
+    <a href="products.html?category=pc-de-bureau" data-nav="bureau">PC de bureau</a>
+    <a href="products.html?used=true" data-nav="occasions">Occasions</a>
+    <a href="index.html#nous-trouver" data-nav="nous-trouver">Nous trouver</a>
+  </nav>
+</header>
+
+<div class="list-shell">
+  <aside class="cat-sidebar">
+    <h4>Catégories</h4>
+    <ul class="cat-list" id="catList"><li class="skeleton-text">Chargement…</li></ul>
+  </aside>
+
+  <main class="list-main">
+    <h1 id="listTitle">Tous les ordinateurs</h1>
+    <div class="list-meta-row">
+      <span class="list-count" id="listCount"></span>
+      <div class="sort-row">
+        Trier par
+        <select id="sortSelect">
+          <option value="newest">Plus récents</option>
+          <option value="price_asc">Prix croissant</option>
+          <option value="price_desc">Prix décroissant</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="seg" id="usedSeg">
+        <button data-val="">Tous</button>
+        <button data-val="false">Neuf</button>
+        <button data-val="true">Occasion</button>
+      </div>
+      <select id="brandSelect"><option value="">Marque</option></select>
+      <select id="ramSelect">
+        <option value="">RAM</option>
+        <option value="4">4 Go</option>
+        <option value="8">8 Go</option>
+        <option value="16">16 Go</option>
+        <option value="32">32 Go</option>
+        <option value="64">64 Go</option>
+      </select>
+      <select id="storageSelect">
+        <option value="">Stockage</option>
+        <option value="128">128 Go et +</option>
+        <option value="256">256 Go et +</option>
+        <option value="512">512 Go et +</option>
+        <option value="1024">1 To et +</option>
+      </select>
+      <select id="screenSelect">
+        <option value="">Écran</option>
+        <option value="0-13.9">13" et moins</option>
+        <option value="14-15.9">14" – 15"</option>
+        <option value="16-99">16" et plus</option>
+      </select>
+      <select id="budgetSelect">
+        <option value="">Budget</option>
+        <option value="0-1000">Moins de 1 000 TND</option>
+        <option value="1000-2000">1 000 – 2 000 TND</option>
+        <option value="2000-3500">2 000 – 3 500 TND</option>
+        <option value="3500-5000">3 500 – 5 000 TND</option>
+        <option value="5000-999999">Plus de 5 000 TND</option>
+      </select>
+      <input type="text" id="searchInput" placeholder="Rechercher une marque ou un modèle…">
+    </div>
+
+    <div class="product-grid" id="productGrid"><p class="skeleton-text">Chargement…</p></div>
+    <p class="empty" id="emptyMsg" style="display:none">Aucun produit ne correspond à ces filtres.</p>
+
+    <div id="pagination" style="display:flex;justify-content:center;gap:10px;margin-top:28px"></div>
+  </main>
+</div>
+
+<footer class="site-footer" id="footer"></footer>
+
+<script src="js/api.js"></script>
+<script src="js/site.js"></script>
+<script src="js/footer.js"></script>
+<script>
+const state = {
+  category: "",
+  used: "",
+  q: "",
+  brand: "",
+  ram: "",
+  storageMin: "",
+  screenMin: "",
+  screenMax: "",
+  priceMin: "",
+  priceMax: "",
+  sort: "newest",
+  page: 1,
+};
+const PAGE_SIZE = 12;
+let categoryTree = [];
+
+function readUrl() {
+  const p = new URLSearchParams(location.search);
+  state.category = p.get("category") || "";
+  state.used = p.get("used") || "";
+  state.q = p.get("q") || "";
+  state.brand = p.get("brand") || "";
+  state.ram = p.get("ram") || "";
+  state.sort = p.get("sort") || "newest";
+  state.page = Number(p.get("page") || 1);
+}
+
+function writeUrl() {
+  const p = new URLSearchParams();
+  ["category", "used", "q", "brand", "ram", "sort"].forEach((k) => { if (state[k]) p.set(k, state[k]); });
+  if (state.page > 1) p.set("page", state.page);
+  history.replaceState(null, "", "products.html" + (p.toString() ? "?" + p.toString() : ""));
+}
+
+function syncControls() {
+  document.querySelectorAll("#usedSeg button").forEach((b) => b.classList.toggle("active", b.dataset.val === state.used));
+  document.getElementById("brandSelect").value = state.brand;
+  document.getElementById("ramSelect").value = state.ram;
+  document.getElementById("sortSelect").value = state.sort;
+  document.getElementById("searchInput").value = state.q;
+  document.getElementById("storageSelect").value = state.storageMin || "";
+  document.getElementById("budgetSelect").value = state.priceMin ? `${state.priceMin}-${state.priceMax}` : "";
+  if (state.screenMin) {
+    const val = `${state.screenMin}-${state.screenMax}`;
+    document.getElementById("screenSelect").value = val;
+  } else {
+    document.getElementById("screenSelect").value = "";
+  }
+}
+
+async function loadBrands() {
+  try {
+    const brands = await api("/brands");
+    const sel = document.getElementById("brandSelect");
+    sel.innerHTML = '<option value="">Marque</option>' + brands.map((b) => `<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`).join("");
+    sel.value = state.brand;
+  } catch (e) {}
+}
+
+function countLabel(catSlug) {
+  return api("/products?" + qs({ category: catSlug, pageSize: 1, includeSold: true })).then((p) => p.total).catch(() => 0);
+}
+
+async function loadSidebar() {
+  const el = document.getElementById("catList");
+  try {
+    categoryTree = await api("/categories");
+    const totalAll = await api("/products?" + qs({ pageSize: 1, includeSold: true })).then((p) => p.total).catch(() => 0);
+
+    async function renderNode(node) {
+      const count = await countLabel(node.slug);
+      const childrenHtml = node.children && node.children.length
+        ? `<ul>${(await Promise.all(node.children.map(renderNode))).join("")}</ul>` : "";
+      const active = state.category === node.slug ? " active" : "";
+      return `<li>
+        <a class="cat-row${active}" href="products.html?category=${encodeURIComponent(node.slug)}">
+          <span>${escapeHtml(node.name)}</span><span class="count">${count}</span>
+        </a>
+        ${childrenHtml}
+      </li>`;
+    }
+
+    const allActive = !state.category ? " active" : "";
+    const rows = await Promise.all(categoryTree.map(renderNode));
+    el.innerHTML = `<li><a class="cat-row${allActive}" href="products.html"><span>Tous les ordinateurs</span><span class="count">${totalAll}</span></a></li>` + rows.join("");
+  } catch (e) {
+    el.innerHTML = '<li class="empty">Catégories indisponibles</li>';
+  }
+}
+
+function updateTitle() {
+  const el = document.getElementById("listTitle");
+  if (state.category) {
+    const path = findCategoryPath(categoryTree, state.category);
+    el.textContent = path ? path[path.length - 1].name : "Ordinateurs";
+  } else if (state.used === "true") {
+    el.textContent = "PC & Mac d'occasion";
+  } else if (state.used === "false") {
+    el.textContent = "PC & Mac neufs";
+  } else {
+    el.textContent = "Tous les ordinateurs";
+  }
+  document.title = el.textContent + " — Meilleurs Prix Ordinateur";
+}
+
+function productCardHtml(p) {
+  const sold = p.status === "sold";
+  const img = p.photos && p.photos[0];
+  const battHtml = p.isUsed && p.used && p.used.batteryHealth != null ? `<span class="batt">Batt. ${p.used.batteryHealth} %</span>` : "";
+  return `
+    <a class="product-card${sold ? " sold" : ""}" href="product.html?slug=${encodeURIComponent(p.slug)}">
+      <div class="ph">
+        ${conditionBadgeHtml(p)}
+        ${img ? `<img src="${img.thumb}">` : "photo produit"}
+        ${sold ? '<div class="sold-ribbon"><span>VENDU</span></div>' : ""}
+      </div>
+      <div class="body">
+        <div class="brand">${escapeHtml(p.brand)}</div>
+        <div class="model">${escapeHtml(p.model)}</div>
+        <div class="specs">${escapeHtml(specLine(p))}</div>
+        <div class="price-row"><span class="price">${money(p.priceTnd)}</span>${battHtml}</div>
+      </div>
+    </a>`;
+}
+
+async function loadProducts() {
+  const grid = document.getElementById("productGrid");
+  const empty = document.getElementById("emptyMsg");
+  grid.innerHTML = '<p class="skeleton-text">Chargement…</p>';
+  empty.style.display = "none";
+  try {
+    const params = {
+      category: state.category,
+      used: state.used,
+      q: state.q,
+      brand: state.brand,
+      ram: state.ram,
+      storageMin: state.storageMin,
+      screenMin: state.screenMin,
+      screenMax: state.screenMax,
+      priceMin: state.priceMin,
+      priceMax: state.priceMax,
+      sort: state.sort,
+      page: state.page,
+      pageSize: PAGE_SIZE,
+      includeSold: true,
+    };
+    const page = await api("/products?" + qs(params));
+    const available = page.items.filter((p) => p.status === "available").length;
+    document.getElementById("listCount").textContent =
+      page.total === available && page.total === page.items.length && page.total <= PAGE_SIZE
+        ? `${page.total} produit${page.total === 1 ? "" : "s"}`
+        : `${page.total} produit${page.total === 1 ? "" : "s"} au total`;
+
+    if (!page.items.length) {
+      grid.innerHTML = "";
+      empty.style.display = "block";
+    } else {
+      grid.innerHTML = page.items.map(productCardHtml).join("");
+    }
+
+    const pages = Math.max(1, Math.ceil(page.total / PAGE_SIZE));
+    const pag = document.getElementById("pagination");
+    if (pages > 1) {
+      pag.innerHTML = `
+        <button class="btn btn-outline-wa" ${state.page <= 1 ? "disabled" : ""} id="prevPage">← Précédent</button>
+        <span style="align-self:center;font-size:13.5px;color:var(--muted)">Page ${state.page} / ${pages}</span>
+        <button class="btn btn-outline-wa" ${state.page >= pages ? "disabled" : ""} id="nextPage">Suivant →</button>`;
+      document.getElementById("prevPage").onclick = () => { state.page--; writeUrl(); loadProducts(); window.scrollTo(0, 0); };
+      document.getElementById("nextPage").onclick = () => { state.page++; writeUrl(); loadProducts(); window.scrollTo(0, 0); };
+    } else {
+      pag.innerHTML = "";
+    }
+  } catch (e) {
+    grid.innerHTML = "";
+    empty.textContent = "Impossible de charger les produits : " + e.message;
+    empty.style.display = "block";
+  }
+}
+
+function wireFilters() {
+  document.querySelectorAll("#usedSeg button").forEach((b) => {
+    b.addEventListener("click", () => { state.used = b.dataset.val; state.page = 1; syncControls(); writeUrl(); loadProducts(); });
+  });
+  document.getElementById("brandSelect").addEventListener("change", (e) => { state.brand = e.target.value; state.page = 1; writeUrl(); loadProducts(); });
+  document.getElementById("ramSelect").addEventListener("change", (e) => { state.ram = e.target.value; state.page = 1; writeUrl(); loadProducts(); });
+  document.getElementById("sortSelect").addEventListener("change", (e) => { state.sort = e.target.value; writeUrl(); loadProducts(); });
+  document.getElementById("storageSelect").addEventListener("change", (e) => { state.storageMin = e.target.value; state.page = 1; loadProducts(); });
+  document.getElementById("screenSelect").addEventListener("change", (e) => {
+    const v = e.target.value;
+    if (v) { const [mn, mx] = v.split("-"); state.screenMin = mn; state.screenMax = mx; } else { state.screenMin = ""; state.screenMax = ""; }
+    state.page = 1; loadProducts();
+  });
+  document.getElementById("budgetSelect").addEventListener("change", (e) => {
+    const v = e.target.value;
+    if (v) { const [mn, mx] = v.split("-"); state.priceMin = mn; state.priceMax = mx; } else { state.priceMin = ""; state.priceMax = ""; }
+    state.page = 1; loadProducts();
+  });
+  document.getElementById("searchInput").addEventListener("input", debounce((e) => {
+    state.q = e.target.value.trim(); state.page = 1; writeUrl(); loadProducts();
+  }, 350));
+}
+
+(async function () {
+  readUrl();
+  await initSite(null);
+  wireFilters();
+  syncControls();
+  await loadSidebar();
+  updateTitle();
+  await loadBrands();
+  loadProducts();
+})();
+</script>
+</body>
+</html>

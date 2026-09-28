@@ -1,0 +1,6 @@
+packages:
+  - admin
+  - packages/*
+  - storefronts/*
+onlyBuiltDependencies:
+  - esbuild

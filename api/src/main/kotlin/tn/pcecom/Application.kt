@@ -3,6 +3,7 @@ package tn.pcecom
 import io.ktor.server.application.*
 import io.ktor.server.netty.EngineMain
 import io.ktor.server.routing.*
+import kotlinx.coroutines.runBlocking
 import tn.pcecom.config.AppConfig
 import tn.pcecom.db.DatabaseFactory
 import tn.pcecom.plugins.*
@@ -23,8 +24,10 @@ fun Application.module() {
     val products = ProductService(storage)
     val settings = SettingsService(storage)
     val stats = StatsService()
+    val seed = SeedService(categories, products, settings)
 
     auth.bootstrapAdmin(config.adminEmail, config.adminPassword)
+    runBlocking { seed.seedIfEmpty() }
 
     configureSerialization()
     configureLogging()

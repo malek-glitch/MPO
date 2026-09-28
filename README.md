@@ -19,7 +19,7 @@ Requirements: JDK 21, Docker.
 docker compose -f docker-compose.dev.yml up -d
 cd api
 gradle wrapper            # once, or open the folder in IntelliJ
-ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD=change-me-please ./gradlew run
+ADMIN_EMAIL=contact@mpo.store ADMIN_PASSWORD=change-me-please ./gradlew run
 ```
 
 - API: http://localhost:8080/api/health
